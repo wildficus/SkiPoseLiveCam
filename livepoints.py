@@ -191,44 +191,36 @@ def dump_keypoints(keypoints_pixel, keypoints_norm):
 #Load a photo
 #img_name = '-000450.jpg'
 
-
-
-
-
-
-
 cap = cv.VideoCapture(0)
-# Load a model
-model = YOLO('yolov8l-pose.pt')  # load an official model
+model = YOLO('yolov8l-pose.pt')  # Load an official model
 
 if not cap.isOpened():
     print("Cannot open camera")
     exit()
 
-
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
     
-    # if frame is read correctly ret is True
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
         break
-        
-    # Our operations on the frame come here
+
+    # Convert the frame for model prediction
     image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
     # Predict with the model
-    results = model(image)  # predict on an image
+    results = model(image)  # Predict on an image
 
-    # Extract the keypoint positions (non normalised, pixel coordinates)    
-    [keypoints_pixel,keypoints_norm] = extract_results(results)
-    
+    # Extract the keypoint positions (non-normalised, pixel coordinates)    
+    [keypoints_pixel, keypoints_norm] = extract_results(results)
+
+    # Check if keypoints_pixel is not None and has the expected number of keypoints
     if keypoints_pixel is not None and keypoints_pixel.shape[0] > 16:
         for point in keypoints_pixel:
             if point[0] != 0 or point[1] != 0:  # Check if point is detected
                 x, y = int(point[0]), int(point[1])
-                cv.circle(image, (x, y), 2, (0, 255, 0), -1)  # Draw circle    
+                cv.circle(image, (x, y), 2, (0, 255, 0), -1)  # Draw circle
 
         # Define connections between keypoints
         pairs = [(5, 7), (7, 9), (6, 8), (8, 10), (11, 13), (13, 15), (12, 14), (14, 16)]
@@ -240,29 +232,25 @@ while True:
 
     # Create a blank image for the text (same size as the frame)
     blank_image = np.zeros_like(frame)
-    
-    # You can customize this text and the location as needed
+
+    # Display custom text
     text_info = "Real-time Keypoint Information:"
     cv.putText(blank_image, text_info, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1, cv.LINE_AA)
     cv.putText(blank_image, "Press 'q' to quit", (10, 60), cv.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1, cv.LINE_AA)
 
     # Concatenate image horizontally
     combined_image = np.concatenate((image, blank_image), axis=1)
-  
+
     # Display the resulting concatenated image
-    cv.imshow('Video with Text Side by Side', combined_image)
-    
-    dump_keypoints(keypoints_pixel,keypoints_norm)
-    
-    if cv.waitKey(1) == ord('q'):
+    window_title = 'Video with Text Side by Side'
+    cv.imshow(window_title, combined_image)
+
+    # Check if 'q' is pressed
+    if cv.waitKey(1) & 0xFF == ord('q'):
         break
 
-# When everything done, release the capture
 cap.release()
 cv.destroyAllWindows()
-
-
-
 
 # ret, frame = cap.read()
 # # if frame is read correctly ret is True
