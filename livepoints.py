@@ -235,14 +235,15 @@ def calculate_angles(p_pixel, p_norm):
         
         linie=f"------------------------------------------------------"
         
+        #-----------------------------------------------------------#   
         print(linie)
         cv.putText(blank_image, linie, (10, 60), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
         angle1 = compute_angle(left_shld, left_elb, left_wrst)
         info_mana_stanga = f"Unghi mana stanga: {angle1} grade"
         print(info_mana_stanga)
         cv.putText(blank_image, info_mana_stanga, (10, 75), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
-        
-        
+                
         angle2 = compute_angle(right_shld, right_elb, right_wrst)
         info_mana_dreapta = f"Unghi mana dreapta: {angle2} grade"
         print(info_mana_dreapta)
@@ -263,38 +264,74 @@ def calculate_angles(p_pixel, p_norm):
             cv.putText(blank_image, "Membrele nu sunt suficient de vizibile.", (10, 155), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
             print("Membrele nu sunt suficient de vizibile.")
         else:
-            if angle1>140 or angle2>140 or angle3>140 or angle4>140 or angle1<60 or angle2<60 or angle3<60 or angle4<60:
+            if angle1>155 or angle2>155 or angle3>170 or angle4>170 or angle1<60 or angle2<60 or angle3<125 or angle4<125:
                 cv.putText(blank_image, "Flexare membrelor este incorecta, risc de dezechilibru!", (10, 155), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
                 print("Flexare membrelor este incorecta, risc de dezechilibru!")
             else:
                 cv.putText(blank_image, "Postura este suficient de flexata.", (10, 155), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
                 print("Postura este suficient de flexata.")
 
-                
+        #-----------------------------------------------------------#        
         print(linie)
+        cv.putText(blank_image, linie, (10, 170), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        #cv.putText(blank_image, f"Nas:{nose}", (400, 185), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 0), 1, cv.LINE_AA)
+        #cv.putText(blank_image, f"L Hip:{left_hip}", (400, 200), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 0), 1, cv.LINE_AA)
+        #cv.putText(blank_image, f"L Ankle:{left_ankl}", (400, 215), cv.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 0), 1, cv.LINE_AA)
+        
         angle5 = compute_angle(nose, left_hip, left_ankl)
-        print(f"Unghi aplecare 1 (stanga): {angle5} grade")
-
+        info_aplecare_stanga = f"Unghi aplecare 1 (stanga): {angle5} grade"
+        print(info_aplecare_stanga)
+        cv.putText(blank_image, info_aplecare_stanga, (10, 185), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        
         angle6 = compute_angle(nose, right_hip, right_ankl)
-        print(f"Unghi aplecare 2 (dreapta): {angle6} grade")
-
-        if angle5>145 or angle6>145:
-            print("Inclinare periculoasa!")
+        info_aplecare_dreapta=f"Unghi aplecare 2 (dreapta): {angle6} grade"
+        print(info_aplecare_dreapta)
+        cv.putText(blank_image, info_aplecare_dreapta, (10, 205), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        if np.isnan(angle5) or np.isnan(angle6) or np.array_equal(nose,[0,0]) or np.array_equal(left_hip,[0,0]) or np.array_equal(left_ankl,[0,0]) or np.array_equal(right_hip,[0,0]) or np.array_equal(right_ankl,[0,0]):
+            print("Inclinarea nu este suficient de clara.")
+            cv.putText(blank_image, "Inclinarea nu este suficient de clara.", (10, 225), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         else:
-            print("Echilibru corect.")
-
+            if angle5<145 or angle6<145:
+                print("Inclinare periculoasa!")
+                cv.putText(blank_image, "Inclinare periculoasa!", (10, 225), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            else:
+                print("Echilibru corect.")
+                cv.putText(blank_image, "Echilibru corect", (10, 225), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        #-----------------------------------------------------------#
         print(linie)
-        print(f"Glezna stanga norm: {left_ankl_n}")
-        print(f"Glezna dreapta norm: {right_ankl_n}")
-
-        dist = calculate_distance(left_ankl_n, right_ankl_n)
-        print(f"Distanta dintre cele doua glezne este: {dist}")
-
-        if dist>0.12:
-            print("Schiurile sunt prea departate!")
+        cv.putText(blank_image, linie, (10, 240), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        text_glezna_stanga=f"Glezna stanga norm: {left_ankl_n}"
+        print(text_glezna_stanga)
+        cv.putText(blank_image, text_glezna_stanga, (10, 255), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        text_glezna_dreapta=f"Glezna dreapta norm: {right_ankl_n}"
+        print(text_glezna_dreapta)
+        cv.putText(blank_image, text_glezna_dreapta, (10, 275), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        dist_glezne = calculate_distance(left_ankl_n, right_ankl_n)
+        dist_solduri = calculate_distance(left_hip_n, right_hip_n)
+        text_dist_glezne=f"Distanta dintre cele doua glezne este: {dist_glezne}"
+        text_dist_solduri=f"Distanta dintre cele doua solduri este: {dist_solduri}"
+        print(text_dist_glezne)
+        cv.putText(blank_image, text_dist_glezne, (10, 295), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        print(text_dist_solduri)
+        cv.putText(blank_image, text_dist_solduri, (10, 315), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        if np.isnan(dist_glezne) or (dist_glezne==0):
+            print("Gleznele nu sunt suficient de vizibile!")
+            cv.putText(blank_image, "Gleznele nu sunt suficient de vizibile!", (10, 335), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         else:
-            print("Schiurile sunt suficient de paralele.")
-
+            if dist_glezne>(1.6*dist_solduri):
+                print("Schiurile sunt prea departate!")
+                cv.putText(blank_image, "Schiurile sunt prea departate!", (10, 335), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            else:
+                print("Schiurile sunt suficient de paralele.")
+                cv.putText(blank_image, "Schiurile sunt suficient de paralele.", (10, 335), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        #-----------------------------------------------------------#
     # print('------------------------------------------------------')
     # #palmele sa nu se duca mai sus decat umerii
     # if min(left_wrst_n[1],right_wrst_n[1]) <= max(left_shld_n[1],right_shld_n[1]):
@@ -357,11 +394,10 @@ while True:
     # Display custom text
     text_info = "Real-time Keypoint Information:"
     cv.putText(blank_image, text_info, (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 1, cv.LINE_AA)
+    cv.putText(blank_image, "(Press 'q' to quit)", (10, 45), cv.FONT_HERSHEY_SIMPLEX, 0.3, (0, 0, 0), 1, cv.LINE_AA)
     
     calculate_angles(keypoints_pixel,keypoints_norm)
     
-    cv.putText(blank_image, "Press 'q' to quit", (10, 300), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 1, cv.LINE_AA)
-
     # Concatenate image horizontally
     combined_image = np.concatenate((image, blank_image), axis=1)
 
