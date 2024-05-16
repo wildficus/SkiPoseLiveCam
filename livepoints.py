@@ -235,7 +235,9 @@ def calculate_angles(p_pixel, p_norm):
         
         linie=f"------------------------------------------------------"
         
-        #-----------------------------------------------------------#   
+        #----------------------------------------------------------------------------------------------------------#
+        #V                      Flexarea membrelor pentru a mentine echilibrul si controlul                       V#
+        #----------------------------------------------------------------------------------------------------------#
         print(linie)
         cv.putText(blank_image, linie, (10, 60), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         
@@ -270,8 +272,16 @@ def calculate_angles(p_pixel, p_norm):
             else:
                 cv.putText(blank_image, "Postura este suficient de flexata.", (10, 155), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
                 print("Postura este suficient de flexata.")
+                
+        #------------------------------------------------------------------------------------------------------------#
+        
+        
+        
 
-        #-----------------------------------------------------------#        
+        #----------------------------------------------------------------------------------------------------------#
+        #V                 Inclinarea laterala a corpului verifica postura suficient de dreapta                   V#
+        #----------------------------------------------------------------------------------------------------------#
+        
         print(linie)
         cv.putText(blank_image, linie, (10, 170), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         
@@ -300,8 +310,15 @@ def calculate_angles(p_pixel, p_norm):
             else:
                 print("Echilibru corect.")
                 cv.putText(blank_image, "Echilibru corect", (10, 225), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        #------------------------------------------------------------------------------------------------------------#
         
-        #-----------------------------------------------------------#
+        
+        
+        
+        #------------------------------------------------------------------------------------------------------------#
+        #V Distanta picioarelor raportata la distanta dintre coapse pentru a verifica pozitia paralela a schiurilor V#
+        #------------------------------------------------------------------------------------------------------------#
+        
         print(linie)
         cv.putText(blank_image, linie, (10, 240), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         
@@ -331,25 +348,60 @@ def calculate_angles(p_pixel, p_norm):
             else:
                 print("Schiurile sunt suficient de paralele.")
                 cv.putText(blank_image, "Schiurile sunt suficient de paralele.", (10, 335), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
-        #-----------------------------------------------------------#
-    # print('------------------------------------------------------')
-    # #palmele sa nu se duca mai sus decat umerii
-    # if min(left_wrst_n[1],right_wrst_n[1]) <= max(left_shld_n[1],right_shld_n[1]):
-        # print("Mainile sunt prea sus!")
-    # else:
-        # print("Elevatie corespunzatoare a mainilor.")
-        
-    # print('------------------------------------------------------')
-    # #fundul sa nu fie mai jos decat genunchii
-    # if min(left_knee_n[1],right_knee_n[1]) <= max(left_hip_n[1],right_hip_n[1]):
-        # print("Posteriorul este prea jos, risc de dezechilibru!")
-    # else:
-        # print("Elevatie corespunzatoare a posteriorului.")
+        #------------------------------------------------------------------------------------------------------------#
 
-    # print('------------------------------------------------------')
-    # #gleznele mai sus decat orice in afara de palme, atunci = cazatura
-    # if min(y for x, y in keypoints_norm)<left_ankl_n[1] or min(y for x, y in keypoints_norm)<right_ankl_n[1] :
-        # print("Ranire detectata!")
+
+
+        #------------------------------------------------------------------------------------------------------------#
+        #V                                 Detectarea dezechilbrului/caderilor                                      V#
+        #------------------------------------------------------------------------------------------------------------#
+        
+        print(linie)
+        cv.putText(blank_image, linie, (10, 350), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        # palmele sa nu se duca mai sus decat umerii
+        if left_wrst_n[1]==0 or left_shld_n[1]==0 or right_wrst_n[1]==0 or right_shld_n[1]==0: 
+            print("Partea superioara a corpului nu este complet vizibila.")
+            cv.putText(blank_image, "Partea superioara a corpului nu este complet vizibila.", (10, 370), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        else:
+            if left_wrst_n[1]<=left_shld_n[1] or right_wrst_n[1] <= right_shld_n[1]:
+                print("Mainile sunt prea sus! Dezechilibrare detectata.")
+                cv.putText(blank_image, "Mainile sunt prea sus! Dezechilibrare detectata.", (10, 370), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            else:
+                print("Elevatie corespunzatoare a mainilor.")
+                cv.putText(blank_image, "Elevatie corespunzatoare a mainilor.", (10, 370), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            
+        print(linie)
+        cv.putText(blank_image, linie, (10, 385), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        
+        # fundul sa nu fie prea jos
+        if left_knee_n[1]==0 or right_knee_n[1]==0 or left_hip_n[1]==0 or right_hip_n[1]==0:
+            print("Partea inferioara a corpului nu este complet vizibila.")
+            cv.putText(blank_image, "Partea inferioara a corpului nu este complet vizibila.", (10, 400), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)            
+        else:
+            if min(left_knee_n[1],right_knee_n[1]) <= max(left_hip_n[1],right_hip_n[1]):
+                print("Posteriorul este prea jos! Dezechilibrare detectata.")
+                cv.putText(blank_image, "Posteriorul este prea jos! Dezechilibrare detectata.", (10, 400), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            else:
+                print("Elevatie corespunzatoare a posteriorului.")
+                cv.putText(blank_image, "Elevatie corespunzatoare a posteriorului.", (10, 400), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        print(linie)
+        cv.putText(blank_image, linie, (10, 415), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        
+        # gleznele mai sus decat orice in afara de palme, atunci = cazatura
+        if left_ankl_n[1]!=0 or right_ankl_n[1]!=0: 
+            if min(y for x, y in keypoints_norm)<left_ankl_n[1] or min(y for x, y in keypoints_norm)<right_ankl_n[1] :
+                print(">>>>>>>>Cadere detectata!<<<<<<<<<<<<")
+                cv.putText(blank_image, ">>>>>>>>Cadere detectata!<<<<<<<<<<<<", (10, 435), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            else:
+                cv.putText(blank_image, "", (10, 435), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+        
+        
+        #------------------------------------------------------------------------------------------------------------#  
+        
     else:
         print(f"Array ended unexpectedly.")
 
