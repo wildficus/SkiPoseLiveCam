@@ -391,14 +391,27 @@ def calculate_angles(p_pixel, p_norm):
         
         
         # gleznele mai sus decat orice in afara de palme, atunci = cazatura
-        if left_ankl_n[1]!=0 or right_ankl_n[1]!=0: 
-            if min(y for x, y in keypoints_norm)<left_ankl_n[1] or min(y for x, y in keypoints_norm)<right_ankl_n[1] :
+        
+         # Check if the ankles are higher than any other keypoint except each other and the hands
+        if left_ankl_n[1] != 0 or right_ankl_n[1] != 0:
+            non_ankle_hand_points = [nose_n, left_eye_n, right_eye_n, left_ear_n, right_ear_n,
+                                     left_shld_n, right_shld_n, left_elb_n, right_elb_n,
+                                     left_hip_n, right_hip_n, left_knee_n, right_knee_n]
+            
+            max_non_ankle_hand_y = max(y for x, y in non_ankle_hand_points if y != 0)
+            
+            cv.putText(blank_image, f"left_ankl_n: {left_ankl_n[1]} ", (10, 450), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            cv.putText(blank_image, f"right_ankl_n: {right_ankl_n[1]} ", (10, 465), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            cv.putText(blank_image, f"max_non_ankle_hand_y: {max_non_ankle_hand_y} ", (10, 480), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+            
+            
+            if max_non_ankle_hand_y > left_ankl_n[1] or max_non_ankle_hand_y > right_ankl_n[1]:
                 print(">>>>>>>>Cadere detectata!<<<<<<<<<<<<")
                 cv.putText(blank_image, ">>>>>>>>Cadere detectata!<<<<<<<<<<<<", (10, 435), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
             else:
-                cv.putText(blank_image, "", (10, 435), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
-        
-        
+                print("No fall detected")
+                cv.putText(blank_image, "No fall detected", (10, 435), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+
         #------------------------------------------------------------------------------------------------------------#  
         
     else:
