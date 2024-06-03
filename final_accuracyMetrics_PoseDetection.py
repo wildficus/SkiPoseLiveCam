@@ -1,6 +1,9 @@
+import json
 from ultralytics import YOLO
 import numpy as np
 import cv2 as cv
+import os
+from sklearn.metrics import confusion_matrix, precision_score, recall_score
 
 #---------------------------------------------------------------------------------------------------------------------------#
 #---------------------------------------------------- Functions used -------------------------------------------------------#
@@ -16,7 +19,6 @@ def compute_angle(pointA, pointB, pointC):
     Returns:
     The angle in degrees.
     """
-    
     if pointA is not None and pointB is not None and pointC is not None:
         A = np.array(pointA)
         B = np.array(pointB)
@@ -189,6 +191,13 @@ def calculate_angles(p_pixel, p_norm):
             if any(nose_n[1] > pt[1] for pt in other_points if pt[1] != 0):
                 fall_nose = 1
 
+        # Determine loss_of_balance and fall_detected flags
+        balance_flags = [balance_flexion, balance_inclination, balance_legs_parallel, balance_behind, balance_hands]
+        fall_flags = [fall_ankle, fall_nose]
+
+        loss_of_balance = sum(balance_flags) >= 3
+        fall_detected = any(fall_flags)
+
         return {
             'balance_flexion': balance_flexion,
             'balance_inclination': balance_inclination,
@@ -196,7 +205,9 @@ def calculate_angles(p_pixel, p_norm):
             'balance_behind': balance_behind,
             'balance_hands': balance_hands,
             'fall_ankle': fall_ankle,
-            'fall_nose': fall_nose
+            'fall_nose': fall_nose,
+            'loss_of_balance': loss_of_balance,
+            'fall_detected': fall_detected
         }
 
     else:
@@ -206,20 +217,76 @@ def calculate_angles(p_pixel, p_norm):
 #------------------------------------------------------ Main body ----------------------------------------------------------#
 #---------------------------------------------------------------------------------------------------------------------------#
 
-# Load image
-image_path = 'C:/Users/maria/Desktop/Master/Dizertatie/injuryski_dataset/injuryski_dataset/images/injuryski_1000/000278.jpg'  # Replace with the path to your image
-image = cv.imread(image_path)
-image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+# Load JSON file with image paths
+json_file_path = 'C:/Users/maria/Desktop/Master/Dizertatie/injuryski_dataset/injuryski_dataset/poseLabels.json'  # Replace with the actual path to your JSON file
 
-# Load model and perform inference
+with open(json_file_path, 'r') as file:
+    data = json.load(file)
+
+# Load YOLO model
 model = YOLO('yolov8l-pose.pt')
-results = model(image)
 
-# Extract keypoints
-[keypoints_pixel, keypoints_norm] = extract_results(results)
+# Initialize lists for true and predicted labels
+true_labels_balance = []
+pred_labels_balance = []
+true_labels_fall = []
+pred_labels_fall = []
 
-# Calculate angles and other metrics
-metrics = calculate_angles(keypoints_pixel, keypoints_norm)
+# Iterate over each image in the JSON file
+for entry in data:
+    image_path = entry['image_path']
+    image = cv.imread(image_path)
+    if image is None:
+        print(f"Error loading image {image_path}")
+        continue
+    
+    image_rgb = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+    
+    # Perform inference
+    results = model(image_rgb)
+    
+    # Extract keypoints
+    [keypoints_pixel, keypoints_norm] = extract_results(results)
+    
+    # Calculate angles and other metrics
+    metrics = calculate_angles(keypoints_pixel, keypoints_norm)
+    
+    # Compare the labeled flags from JSON with the computed results
+    labeled_loss_of_balance = entry.get('loss_of_balance', None)
+    labeled_fall_detected = entry.get('fall_detected', None)
+    
+    # Collect true and predicted labels for loss of balance
+    if labeled_loss_of_balance is not None and 'loss_of_balance' in metrics:
+        true_labels_balance.append(labeled_loss_of_balance)
+        pred_labels_balance.append(metrics['loss_of_balance'])
+    
+    # Collect true and predicted labels for fall detection
+    if labeled_fall_detected is not None and 'fall_detected' in metrics:
+        true_labels_fall.append(labeled_fall_detected)
+        pred_labels_fall.append(metrics['fall_detected'])
+    
+    print(f"Metrics for {image_path}: {metrics}")
+    print(f"Labeled loss of balance: {labeled_loss_of_balance}, Computed loss of balance: {metrics.get('loss_of_balance')}")
+    print(f"Labeled fall detected: {labeled_fall_detected}, Computed fall detected: {metrics.get('fall_detected')}")
 
-# Print metrics
-print(metrics)
+# Calculate accuracy metrics for loss of balance
+if true_labels_balance and pred_labels_balance:
+    conf_matrix_balance = confusion_matrix(true_labels_balance, pred_labels_balance)
+    precision_balance = precision_score(true_labels_balance, pred_labels_balance)
+    recall_balance = recall_score(true_labels_balance, pred_labels_balance)
+    print("\nLoss of Balance:")
+    print("Confusion Matrix:")
+    print(conf_matrix_balance)
+    print(f"Precision: {precision_balance}")
+    print(f"Recall: {recall_balance}")
+
+# Calculate accuracy metrics for fall detection
+if true_labels_fall and pred_labels_fall:
+    conf_matrix_fall = confusion_matrix(true_labels_fall, pred_labels_fall)
+    precision_fall = precision_score(true_labels_fall, pred_labels_fall)
+    recall_fall = recall_score(true_labels_fall, pred_labels_fall)
+    print("\nFall Detection:")
+    print("Confusion Matrix:")
+    print(conf_matrix_fall)
+    print(f"Precision: {precision_fall}")
+    print(f"Recall: {recall_fall}")
