@@ -327,11 +327,11 @@ def calculate_angles(p_pixel, p_norm):
             cv.putText(blank_image, "Partea inferioara a corpului nu este complet vizibila.", (485, 345), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         else:
             if min(left_knee_n[1], right_knee_n[1]) <= max(left_hip_n[1], right_hip_n[1]):
-                print("Posteriorul este prea jos! Dezechilibrare detectata.")
-                cv.putText(blank_image, "Posteriorul este prea jos! Dezechilibrare detectata.", (485, 345), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+                print("Bazinul este prea jos! Dezechilibrare detectata.")
+                cv.putText(blank_image, "Bazinul este prea jos! Dezechilibrare detectata.", (485, 345), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
             else:
-                print("Elevatie corespunzatoare a posteriorului.")
-                cv.putText(blank_image, "Elevatie corespunzatoare a posteriorului.", (485, 345), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+                print("Elevatie corespunzatoare a bazinului.")
+                cv.putText(blank_image, "Elevatie corespunzatoare a bazinului.", (485, 345), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
 
         print(linie)
         cv.line(blank_image, (10, 370), (950, 370), (0, 0, 0), 1)
@@ -353,20 +353,20 @@ def calculate_angles(p_pixel, p_norm):
             
         if left_ankl_n[1] != 0 or right_ankl_n[1] != 0:
             if max_non_ankle_hand_y > left_ankl_n[1] or max_non_ankle_hand_y > right_ankl_n[1]:
-                print("Cadere detectata!Picioare-n sus!")
-                cv.putText(blank_image, "Cadere detectata!Picioare-n sus!", (485, 395), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+                print("Cadere detectata!(picioare)")
+                cv.putText(blank_image, "Cadere detectata!(picioare)", (485, 395), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
             else:
-                print("No fall detected")
-                cv.putText(blank_image, "Picioarele inca par okay", (485, 395), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+                print("Pozitia picioareler corecta")
+                cv.putText(blank_image, "Pozitia picioareler corecta", (485, 395), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
 
         if nose_n[1] != 0:
             other_points = [left_hip_n, right_hip_n, left_knee_n, right_knee_n, left_ankl_n, right_ankl_n, left_shld_n, right_shld_n]
             if any(nose_n[1] > pt[1] for pt in other_points if pt[1] != 0):
-                print("Cadere detectata!Capul prea jos!")
-                cv.putText(blank_image, "Cadere detectata!Capul prea jos!", (485, 410), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+                print("Cadere detectata!(cap)")
+                cv.putText(blank_image, "Cadere detectata!(cap)", (485, 410), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
             else:
-                print("No fall detected")
-                cv.putText(blank_image, "Capul inca pare okay", (485, 410), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+                print("Pozitia capului corecta")
+                cv.putText(blank_image, "Pozitia capului corecta", (485, 410), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
         
         cv.line(blank_image, (10, 450), (950, 450), (0, 0, 0), 1)
         
