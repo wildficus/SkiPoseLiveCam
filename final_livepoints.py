@@ -382,7 +382,7 @@ if not cap.isOpened():
     print("Cannot open camera")
     exit()
 
-model = YOLO('yolov8l-pose.pt')
+model = YOLO('yolov8n-pose.pt')
 
 while True:
     ret, image = cap.read()
